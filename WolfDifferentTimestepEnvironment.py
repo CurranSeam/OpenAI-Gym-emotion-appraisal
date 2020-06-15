@@ -6,19 +6,7 @@ from gym.envs.toy_text import discrete
 import numpy as np
 import random
 
-'''
-MAP = [
-    "+---------+",
-    "|R: | : :G|",
-    "| : | : : |",
-    "| : : : : |",
-    "| | : | : |",
-    "|Y| : |B: |",
-    "+---------+",
-]
-'''
-
-#Correct MAP for our simulation
+# Map for wolf/prey scenario
 MAP = [
     "+_   _   _+",
     "| | | | | |",
@@ -52,15 +40,11 @@ class WolfDifferentTimestepEnv(discrete.DiscreteEnv):
     Reward: 1
 
     Actions:
-    There are 5 discrete deterministic actions of the wolf:
+    There are 4 discrete deterministic actions of the wolf:
     - 0: move south
     - 1: move north
     - 2: move east 
     - 3: move west 
-    - 4: eat
-    
-    Rewards: 
-    There is a reward of -1 for each action and an additional reward of -10 for eating illegally.
     
     Rendering:
     - red: wolf
@@ -85,10 +69,8 @@ class WolfDifferentTimestepEnv(discrete.DiscreteEnv):
         max_col = num_columns - 1
         initial_state_distrib = np.zeros(num_states)
         num_actions = 4
-        found = 0
         P = {state: {action: []
                      for action in range(num_actions)} for state in range(num_states)}
-        #taxi_loc = (2, 2)
         for row in range(num_rows):
             for col in range(num_columns):
                 for pass_idx1 in range(len(locs1)):
@@ -99,16 +81,14 @@ class WolfDifferentTimestepEnv(discrete.DiscreteEnv):
                                 pass_idx1 = 0
                             else:
                                 pass_idx2 = 0
-                        #for dest_idx in range(len(locs)):
                         state = self.encode(row, col, pass_idx1, pass_idx2)
-                        if pass_idx1 < 3: #and pass_idx != dest_idx:
+                        if pass_idx1 < 3:
                             initial_state_distrib[state] += 1
                         for action in range(num_actions):
                             # defaults
                             new_row, new_col, new_pass_idx1, new_pass_idx2 = row, col, pass_idx1, pass_idx2
-                            reward = 0 # default reward when there is no pickup/dropoff
+                            reward = 0 # default reward
                             done = False
-                            taxi_loc = (row, col)
                             
                             if action == 0:
                                 new_row = min(row + 1, max_row)
@@ -118,7 +98,7 @@ class WolfDifferentTimestepEnv(discrete.DiscreteEnv):
                                 new_col = min(col + 1, max_col)
                             elif action == 3 and self.desc[1 + row, 2 * col] == b":":
                                 new_col = max(col - 1, 0)
-                            #elif action == 4:  # terminate
+
                             new_state = self.encode(
                                 new_row, new_col, new_pass_idx1, new_pass_idx2)
                             if (locs2[pass_idx2] != False):
