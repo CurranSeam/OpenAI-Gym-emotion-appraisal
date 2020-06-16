@@ -2,7 +2,7 @@ import sys
 from contextlib import closing
 from six import StringIO
 from gym import utils
-from gym.envs.toy_text import discrete
+import discrete
 import numpy as np
 import random
 
